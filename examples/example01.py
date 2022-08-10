@@ -11,3 +11,5 @@ permanent_disp, data2plot = classical_newmark(
     data["Time"], data["Acceleration"], ky=0.2, g=1, step=1
 )
 fig = plot_permanent_disp(data2plot)
+
+fig.show()

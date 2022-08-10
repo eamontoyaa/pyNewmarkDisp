@@ -1,19 +1,21 @@
 """Compute permanent displacements by the Newmark method"""
 
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-# plt.style.use("default")
-# mpl.rcParams.update(
-#     {
-#         "text.usetex": False,  # Use mathtext, not LaTeX
-#         "font.family": "serif",  # Use the Computer modern font
-#         "font.serif": "cmr10",
-#         "mathtext.fontset": "cm",
-#         "axes.formatter.use_mathtext": True,
-#         "axes.unicode_minus": False,
-#     }
-# )
+plt.style.use("default")
+mpl.rcParams.update(
+    {
+        "text.usetex": False,  # Use mathtext, not LaTeX
+        "font.family": "serif",  # Use the Computer modern font
+        "font.serif": "cmr10",
+        "mathtext.fontset": "cm",
+        "axes.formatter.use_mathtext": True,
+        "axes.unicode_minus": False,
+        # "backend": "TKAgg",
+    }
+)
 
 
 class Data2Plot:
