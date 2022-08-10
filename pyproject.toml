@@ -1,0 +1,20 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "pynewmarkdisp"
+authors = [{name = "Exneyder A. Montoya-Araque", email = "eamontoyaa@gmail.com"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = ["License :: OSI Approved :: MIT License"]
+dynamic = ["version", "description"]
+requires-python = ">=3.6"
+dependencies = [
+    "numpy >=1.23.1",
+    "matplotlib >=3.5.2"
+]
+
+[project.urls]
+Source  = "https://github.com/eamontoyaa/pynewmarkdisp"
+Documentation = "https://pynewmarkdisp.readthedocs.io/en/latest/"
