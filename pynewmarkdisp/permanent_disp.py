@@ -18,10 +18,6 @@ mpl.rcParams.update(
 )
 
 
-class Data2Plot:
-    pass
-
-
 def classical_newmark(t, accel, ky, g, step=1):
     ay = 9.81 * ky  # Yield acceleration to SI units
     accel = 9.81 * np.array(accel) / g  # Earthquake acceleration to SI units
@@ -29,32 +25,27 @@ def classical_newmark(t, accel, ky, g, step=1):
         indices = np.arange(0, len(t), step)
         t = t[indices]
         accel = accel[indices]
-    vel = [0]
-    disp = [0]
+    # vel = [0]
+    # disp = [0]
 
+    vel = np.zeros(len(t))
+    disp = np.zeros(len(t))
     for i in np.arange(1, len(t), 1):
         if accel[i] > ay:
-            v = vel[-1] + np.trapz(
+            v = vel[i - 1] + np.trapz(
                 y=accel[i - 1 : i + 1] - ay, x=t[i - 1 : i + 1]
             )
-        elif accel[i] < ay and vel[-1] > 0:
-            v = vel[-1] - abs(
+        elif accel[i] < ay and vel[i - 1] > 0:
+            v = vel[i - 1] - abs(
                 np.trapz(y=accel[i - 1 : i + 1], x=t[i - 1 : i + 1])
             )
         else:
             v = 0
         if v < 0:
             v = 0
-        vel.append(v)
-        disp.append(np.trapz(y=vel, x=t[: i + 1]))
-        data2plot = Data2Plot()
-        data2plot.t = t
-        data2plot.accel = accel
-        data2plot.vel = vel
-        data2plot.disp = disp
-        data2plot.ay = ay
-        permanent_disp = disp[-1]
-    return permanent_disp, data2plot
+        vel[i] = v
+        disp[i] = np.trapz(y=vel[: i + 1], x=t[: i + 1])
+    return accel, vel, disp
 
 
 def plot_permanent_disp(data2plot):
