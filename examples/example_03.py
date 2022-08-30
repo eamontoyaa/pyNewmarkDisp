@@ -47,7 +47,7 @@ fig = plot_spatial_field(fs, xy_lowerleft, 10, "$f_\mathrm{s}$", "RdYlGn")
 ky = get_ky(depth, depth_w, slope, phi, c, unit_weight)
 fig = plot_spatial_field(ky, xy_lowerleft, 10, "$k_\mathrm{y}$", "RdYlGn_r")
 # Calculating permanent displacements
-permanent_disp = spatial_newmark(time, accel, ky, g, step=2)
+permanent_disp = spatial_newmark(time, accel, ky, g, step=4)
 fig = plot_spatial_field(
     permanent_disp, xy_lowerleft, 10, "$\delta_\mathrm{perm}$  [m]", "RdYlGn_r"
 )

@@ -29,6 +29,31 @@ mpl.rcParams.update(
 )
 
 
+@njit
+def tupleset(t, i, value):
+    l = list(t)
+    l[i] = value
+    return tuple(l)
+
+
+@njit
+def cumulative_trapezoid(y, x, initial=None):
+    axis = -1
+    d = np.diff(x, axis=axis)
+    nd = len(y.shape)
+    slice1 = tupleset((slice(None),) * nd, axis, slice(1, None))
+    slice2 = tupleset((slice(None),) * nd, axis, slice(None, -1))
+    res = np.cumsum(d * (y[slice1] + y[slice2]) / 2.0, axis=axis)
+    shape = list(res.shape)
+    shape[axis] = 1
+    res = np.concatenate(
+        [np.full(shape, initial, dtype=res.dtype), res], axis=axis
+    )
+    return res
+
+
+# @jit(forceobj=True)
+@njit
 def classical_newmark(time, accel, ky, g, step=1):
     """
     Calculate Newmark's displacements by the classsical approach.
@@ -85,7 +110,8 @@ def classical_newmark(time, accel, ky, g, step=1):
                 v = 0
             v = max(v, 0)
             vel[i] = v
-        disp = cum_trapz(y=vel, x=time, initial=0)
+        # disp = cum_trapz(y=vel, x=time, initial=0)
+        disp = cumulative_trapezoid(y=vel, x=time, initial=0)
     else:
         vel = np.zeros(length)
         disp = np.zeros(length)
