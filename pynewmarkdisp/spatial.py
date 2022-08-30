@@ -7,13 +7,15 @@ Functions to compute the permanent displacements by the Newmark method.
 """
 
 import numpy as np
-from scipy.integrate import cumulative_trapezoid as cum_trapz
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
-from numba import njit
+from numba import njit, jit
 
-plt.style.use("default")
+from pynewmarkdisp.newmark import classical_newmark
+from pynewmarkdisp.infslope import factor_of_safety, get_ky
+
+# plt.style.use("default")
 mpl.rcParams.update(
     {
         "text.usetex": False,  # Use mathtext, not LaTeX
@@ -26,115 +28,97 @@ mpl.rcParams.update(
     }
 )
 
-# @njit(cache=True)
-def spatial_newmark(parameters, zones, slope):
-    """
-    Calculate Newmark's displacements by the classsical approach.
 
-    Parameters
-    ----------
-    time : ndarray
-        Array with the time steps of the accelerogram.
-    accel : ndarray
-        Array with the acceleration of each time step of the accelerogram.
-    ky : float
-        Critical seismic coefficient (yield coefficient).
-    g : float
-        Gravitational acceleration in the same units as `accel`.  If `accel` is
-        given in fractions  of g, g=1.
-    step : int (optional)
-        Value to not read all the data elements but each `step` indices.
+def map_zones(parameters, zones):
+    phi = np.empty_like(zones)
+    c = np.empty_like(zones)
+    unit_weight = np.empty_like(zones)
+    for z in parameters.keys():  # Zone: frict_angle, cohesion, unit_weight
+        phi[np.where(zones == z)] = parameters[z][0]
+        c[np.where(zones == z)] = parameters[z][1]
+        unit_weight[np.where(zones == z)] = parameters[z][2]
+    return phi, c, unit_weight
 
-    Returns
-    -------
-    vel : ndarray
-        Array with the velocities after integrating the accelerations.
-    disp : ndarray
-        Array with the cumulative permanent displazaments after doublle
-        integrating the accelerations.
-    time : ndarray
-        Resized array with the time steps of the accelerogram.  This output is
-        returned only if `step != 1`.
-    accel : ndarray
-        Resized array with the time steps of the accelerogram.  This output is
-        returned only if `step != 1`.
-    """
-    for zone in parameters.keys():
 
-    if step > 1:
-        indices = np.arange(0, len(time), step)
-        time = time[indices]
-        accel = accel[indices]
+def spatial_newmark(time, accel, ky, g, step=1):
+    row, col = ky.shape
+    permanent_disp = np.empty_like(ky)
+    for i in range(row):
+        for j in range(col):
+            if isinstance(accel, np.ndarray) and accel.ndim == 2:
+                newmark_str = classical_newmark(
+                    time[i, j], accel[i, j], ky[i, j], g, step
+                )
+            elif isinstance(accel, np.ndarray) and accel.ndim == 1:
+                newmark_str = classical_newmark(time, accel, ky[i, j], g, step)
+            permanent_disp[i, j] = newmark_str["perm_disp"]
+    return np.around(permanent_disp, 3)
 
-    vel = np.zeros(len(time))
-    for i in np.arange(1, len(time), 1):
-        if accel[i] > ay:
-            v = vel[i - 1] + np.trapz(
-                y=accel[i - 1 : i + 1] - ay, x=time[i - 1 : i + 1]
-            )
-        elif accel[i] < ay and vel[i - 1] > 0:
-            v = vel[i - 1] - abs(
-                np.trapz(y=accel[i - 1 : i + 1], x=time[i - 1 : i + 1])
-            )
-        else:
-            v = 0
-        if v < 0:
-            v = 0
-        vel[i] = v
-    disp = cum_trapz(y=vel, x=time, initial=0)
-    newmark_str = {
-        "time": time,
-        "accel": accel,
-        "vel": vel,
-        "disp": disp,
-        "ay": ay,
-    }
+
+def verify_spatial(
+    cell, time, accel, g, depth, depth_w, slope, phi, c, unit_weight
+):
+    i, j = cell
+    depth = depth[i, j]
+    depth_w = depth_w[i, j]
+    slope = slope[i, j]
+    phi = phi[i, j]
+    c = c[i, j]
+    unit_weight = unit_weight[i, j]
+    fs_0 = factor_of_safety(depth, depth_w, slope, phi, c, unit_weight, k_s=0)
+    ky = get_ky(depth, depth_w, slope, phi, c, unit_weight)
+    fs_ky = factor_of_safety(depth, depth_w, slope, phi, c, unit_weight, ky)
+    newmark_str = classical_newmark(time, accel, ky, g, step=1)
+    newmark_str["fs_init"] = fs_0
+    newmark_str["fs_ky"] = fs_ky
     return newmark_str
 
 
-def plot_newmark_str(newmark_str):
-    fig, axs = plt.subplots(ncols=1, nrows=3, figsize=[6, 5], sharex=True)
-    axs[0].plot(
-        newmark_str["time"], newmark_str["accel"], lw=0.5, color="#EC3D33"
-    )
-    ay = newmark_str["ay"]
-    ky = ay / 9.81
-    axs[0].axhline(
-        newmark_str["ay"],
-        color="k",
-        ls="--",
-        label="$a_\mathrm{y}=$" + f"{ky:.1f}g = " + f"{ay:.2f} m/s$^2$",
-    )
-    axs[0].set(ylabel="Acceleration, $a$ [m s$^{- 2}$]")
-    axs[0].legend(loc="best")
+def plot_spatial_field(field, xy_lowerleft, cellsize, title=None, cmap="jet"):
+    """
+    Plot the double-integration process from Newmark's method.
 
-    axs[1].plot(
-        newmark_str["time"], newmark_str["vel"], lw=0.5, color="#EC3D33"
-    )
-    axs[1].set(ylabel="Velocity, $v$ [m s$^{- 1}$]")
+    Parameters
+    ----------
+    newmark_str : dict
+        Dictionary with the structure from the Newmark's method. The structure
+        includes time, acceleration, velocity, displacements, and critical
+        acceleration.
 
-    axs[2].plot(
-        newmark_str["time"],
-        newmark_str["disp"],
-        lw=1.0,
-        color="#EC3D33",
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Matplotlib object which might be used to save the figure as a file.
+    """
+    x, y = field.shape
+    extent = (
+        xy_lowerleft[0],  # x min
+        xy_lowerleft[0] + cellsize * x,  # x max
+        xy_lowerleft[1],  # y min
+        xy_lowerleft[1] + cellsize * y,  # y max
     )
-    axs[2].plot(
-        newmark_str["time"][-1],
-        newmark_str["disp"][-1],
-        ls="",
-        marker="*",
-        mfc="white",
-        color="#EC3D33",
-        label="$\delta_\mathrm{perm}=$" + f"{newmark_str['disp'][-1]:.3f} m",
-    )
-    axs[2].set(ylabel="Displacement, $\delta$ [m]", xlabel="Time, $t$ [s]")
-    axs[2].legend(loc="lower right")
-
-    for ax in axs.flat:
-        ax.yaxis.set_major_formatter(FormatStrFormatter("%.2f"))
-        ax.spines["bottom"].set_linewidth(1.5)
-        ax.spines["left"].set_linewidth(1.5)
-        ax.grid(True, which="major", linestyle="--")
+    fig, ax = plt.subplots(ncols=1, nrows=1, figsize=[6, 5], sharex=True)
+    im = ax.imshow(field, cmap=cmap, interpolation="nearest", extent=extent)
+    ax.tick_params(axis="y", labelrotation=90)
+    ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f"))
+    ax.spines["bottom"].set_linewidth(1.5)
+    ax.spines["left"].set_linewidth(1.5)
+    ax.grid(True, which="major", linestyle="--")
+    cbar = fig.colorbar(im, ax=ax)
+    cbar.set_label(title, rotation=90, size="large")
     fig.tight_layout()
     return fig
+
+
+def load_ascii_raster(path):
+    raster = np.loadtxt(path, skiprows=6)
+    header = np.loadtxt(path, max_rows=6, dtype=object)
+    header = {
+        "ncols": int(header[0, 1]),
+        "nrows": int(header[1, 1]),
+        "xllcorner": float(header[2, 1]),
+        "yllcorner": float(header[3, 1]),
+        "cellsize": float(header[4, 1]),
+        "nodata_value": int(header[5, 1]),
+    }
+    return (raster, header)

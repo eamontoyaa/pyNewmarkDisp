@@ -21,8 +21,6 @@ time_end = time_pkg.perf_counter()
 print(time_end - time_start)
 
 fig = plot_newmark_str(newmark_str)
-plt.show()
-# fig.savefig("./examples/example_01.pdf")
 
 
 # Example with a real earthquake signal
@@ -30,7 +28,7 @@ earthquake = "https://raw.githubusercontent.com/eamontoyaa/data4testing/main/pyn
 earthquake = pd.read_csv(earthquake, sep=";")
 time = np.array(earthquake["Time"])
 accel = np.array(earthquake["Acceleration"])
-g = 981  # m/s^2
+g = 981  # cm/s^2
 ky = 0.15
 
 time_start = time_pkg.perf_counter()
@@ -40,4 +38,3 @@ print(time_end - time_start)
 
 fig = plot_newmark_str(newmark_str)
 plt.show()
-# fig.savefig("./examples/example_01.pdf")
