@@ -4,7 +4,7 @@
 
 `pyNewmarkDisp` is an application software in Python to calculate permanent displacements in shallow earthquake-triggered landslides by the Newmark sliding block method.
 
-In this repo and in the package doumentation you will find the source code, instructions for installation, docstrings, examples of use, development history track, and references.
+In this repo and in the package [doumentation](https://eamontoyaa.github.io/pynewmarkdisp/) you will find the source code, instructions for installation, docstrings, examples of use, development history track, and references.
 
 ## Installation
 

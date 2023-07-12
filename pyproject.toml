@@ -23,4 +23,4 @@ dependencies = [
 
 [project.urls]
 Source  = "https://github.com/eamontoyaa/pynewmarkdisp"
-# Documentation = "https://pynewmarkdisp.readthedocs.io/en/latest/"
+Documentation = "https://eamontoyaa.github.io/pynewmarkdisp/"
