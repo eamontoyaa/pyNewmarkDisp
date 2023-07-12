@@ -1,10 +1,10 @@
-# Welcome to `pynewmarkdisp` repo and docs
+# Welcome to the `pyNewmarkDisp` repo and docs
 
-[![made-with-python](https://img.shields.io/badge/Made%20with-Python3-brightgreen.svg)](https://www.python.org/)   [![MIT License](https://img.shields.io/github/license/eamontoyaa/pynewmarkdisp.svg)](https://opensource.org/license/mit/)   [![PyPI repo](https://img.shields.io/pypi/v/pynewmarkdisp.svg)](https://pypi.org/project/pynewmarkdisp)
+[![made-with-python](https://img.shields.io/badge/Made_with-Python3-306998?style=badge&logo=python&logoColor=white)](https://eamontoyaa.github.io/pyNewmarkDisp/)      [![PyPI repo](https://img.shields.io/pypi/v/pynewmarkdisp.svg)](https://pypi.org/project/pynewmarkdisp)      [![MIT License](https://img.shields.io/badge/License-MIT-FFAB00?style=badge&logo=opensourceinitiative&logoColor=white)](https://opensource.org/license/mit/)            [![Docs](https://img.shields.io/badge/Docs-Passing-008000?style=badge&logo=readthedocs&logoColor=white)](https://eamontoyaa.github.io/pyNewmarkDisp/)
 
 `pyNewmarkDisp` is an application software in Python to calculate permanent displacements in shallow earthquake-triggered landslides by the Newmark sliding block method.
 
-In this repo and in the package [doumentation](https://eamontoyaa.github.io/pynewmarkdisp/) you will find the source code, instructions for installation, docstrings, examples of use, development history track, and references.
+In this repo and in the package [doumentation](https://eamontoyaa.github.io/pyNewmarkDisp/) you will find the source code, instructions for installation, docstrings, examples of use, development history track, and references.
 
 ## Installation
 
