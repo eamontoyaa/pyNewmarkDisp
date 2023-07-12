@@ -1,0 +1,55 @@
+site_name: pyNewmarkDisp Docs
+repo_url: https://github.com/eamontoyaa/pyNewmarkDisp
+site_author: Exneyder A. Montoya-Araque
+copyright: Copyright &copy; 2023 Exneyder A. Montoya-Araque
+site_dir: build_docs
+
+nav:
+  - Home: index.md
+  - Illustrative examples and tutorials:
+      - Dummy example: tutorials/01_dummy_example.ipynb
+  - Package docstrings: package.md
+  - History: history.md
+  - References: references.md
+
+theme:
+  name: "material"
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - content.code.copy
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate # Palette toggle for dark mode
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - markdown_include.include:
+      base_path: ./
+
+plugins:
+  - mkdocstrings:
+      custom_templates: templates
+      default_handler: python
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
+            show_root_heading: true
+            show_source: true
+            show_signature: true
+            separate_signature: true
+            line_length: 80
+  - mkdocs-jupyter:
+      include: ["*.ipynb"]
+      execute: false
+      include_source: True
+
+

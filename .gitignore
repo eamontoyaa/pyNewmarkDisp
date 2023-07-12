@@ -127,3 +127,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Auxiliar directories and files created by eamontoyaa
+.vscode
+build_docs
+performance_test
+performance_test/*
+EAMA_PhD_thesis_models
+EAMA_PhD_thesis_models/*
+pynewmarkdisp/performance_test/*
+raw.githubusercontent.com
